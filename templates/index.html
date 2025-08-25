@@ -3,136 +3,444 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vulnerability Checker</title>
+    <title>Advanced Vulnerability Scanner</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: url('vuln2.jpeg') no-repeat center center fixed;
-            background-size: cover;
-            color: #ffffff;
+        :root {
+            --primary: #00d8ff;
+            --secondary: #0088ff;
+            --dark-bg: #1a1a2e;
+            --darker-bg: #16213e;
+            --card-bg: #252540;
+            --border-color: #3a3a55;
+            --text-color: #ffffff;
+        }
+        
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-color);
             height: 100vh;
+            display: flex;
+            overflow: hidden;
         }
-
-        .container {
-            width: 90%;
-            max-width: 600px;
-            background: rgba(42, 42, 64, 0.9);
+        
+        /* Left Panel (35%) */
+        .left-panel {
+            width: 35%;
+            height: 100vh;
+            background: var(--darker-bg);
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
         }
-
-        .container h1 {
+        
+        .app-header {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .app-header h1 {
+            color: var(--primary);
             font-size: 24px;
-            margin-bottom: 20px;
-            color: #00d8ff;
-            text-align: center;
+            margin-bottom: 5px;
         }
-
-        label {
+        
+        .app-header p {
+            color: rgba(255, 255, 255, 0.7);
             font-size: 14px;
-            margin-bottom: 8px;
-            display: block;
         }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
+        
+        /* Input Section */
+        .input-section {
+            margin-bottom: 25px;
+        }
+        
+        .input-group {
             margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
-            background: #1e1e2f;
-            color: #ffffff;
-            border: 1px solid #3a3a55;
         }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #00d8ff;
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
         }
-
-        button {
+        
+        .input-group input {
             width: 100%;
-            padding: 12px;
-            background-color: #00d8ff;
-            border: none;
-            border-radius: 5px;
-            color: #1e1e2f;
-            font-size: 16px;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-color);
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* Scan Options */
+        .scan-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .scan-option {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .scan-option:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+        
+        .scan-option input {
+            margin-right: 12px;
+            accent-color: var(--primary);
+        }
+        
+        .scan-option label {
+            font-size: 14px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            flex-grow: 1;
         }
-
-        button:hover {
-            background-color: #00b2d6;
+        
+        /* Scan Button */
+        .scan-btn-container {
+            margin-top: auto;
+            padding-top: 20px;
         }
-
-        .result {
-            margin-top: 20px;
-            padding: 10px;
-            background: #1e1e2f;
-            border: 1px solid #3a3a55;
-            border-radius: 5px;
-            color: #ffffff;
+        
+        .scan-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .scan-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 216, 255, 0.4);
+        }
+        
+        .scan-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Right Panel (65%) */
+        .right-panel {
+            width: 65%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .results-header h2 {
+            color: var(--primary);
+            font-size: 20px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 8px 15px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background: var(--primary);
+            color: var(--dark-bg);
+            border-color: var(--primary);
+        }
+        
+        /* Results Container */
+        .results-container {
+            flex-grow: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--primary);
+            font-size: 16px;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 216, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Vulnerability Checker</h1>
-        <form id="vulnerabilityForm">
-            <label for="urlInput">Enter URL or IP:</label>
-            <input type="text" id="urlInput" name="url" placeholder="https://example.com" required>
-
-            <label for="scanType">Select Scan Type:</label>
-            <select id="scanType" name="scanType">
-                <option value="Port Scan">Port Scan</option>
-                <option value="Banner Grabbing">Banner Grabbing</option>
-                <option value="Header Check">Header Check</option>
-            </select>
-
-            <button type="submit">Check Vulnerability</button>
-        </form>
-        <div class="result" id="result" style="display: none;"></div>
+    <!-- Left Panel (35%) -->
+    <div class="left-panel">
+        <div class="app-header">
+            <h1>Advanced Vulnerability Scanner</h1>
+            <p>Comprehensive security assessment tool</p>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="target">Target (URL or IP Address)</label>
+                <input type="text" id="target" placeholder="example.com or 192.168.1.1" required>
+            </div>
+        </div>
+        
+        <div class="scan-options">
+            <div class="scan-option">
+                <input type="checkbox" id="portScan" name="scanTypes" value="Port Scan" checked>
+                <label for="portScan">Port Scan</label>
+            </div>
+            <div class="scan-option">
+                <input type="checkbox" id="fullPortScan" name="scanTypes" value="Full Port Scan">
+                <label for="fullPortScan">Full Port Scan</label>
+            </div>
+            <div class="scan-option">
+                <input type="checkbox" id="aggressiveScan" name="scanTypes" value="Aggressive Scan">
+                <label for="aggressiveScan">Aggressive Scan</label>
+            </div>
+            <div class="scan-option">
+                <input type="checkbox" id="bannerGrabbing" name="scanTypes" value="Banner Grabbing" checked>
+                <label for="bannerGrabbing">Banner Grabbing</label>
+            </div>
+            <div class="scan-option">
+                <input type="checkbox" id="headerCheck" name="scanTypes" value="Header Check" checked>
+                <label for="headerCheck">Header Check</label>
+            </div>
+            <div class="scan-option">
+                <input type="checkbox" id="osDetection" name="scanTypes" value="OS Detection">
+                <label for="osDetection">OS Detection</label>
+            </div>
+            <div class="scan-option">
+                <input type="checkbox" id="serviceVersionDetection" name="scanTypes" value="Service & Version Detection">
+                <label for="serviceVersionDetection">Service & Version Detection</label>
+            </div>
+            <div class="scan-option">
+                <input type="checkbox" id="niktoScan" name="scanTypes" value="Nikto Scan">
+                <label for="niktoScan">Nikto Scan</label>
+            </div>
+            <div class="scan-option">
+                <input type="checkbox" id="nucleiScan" name="scanTypes" value="Nuclei Scan">
+                <label for="nucleiScan">Nuclei Scan</label>
+            </div>
+        </div>
+        
+        <div class="scan-btn-container">
+            <button id="scanBtn" class="scan-btn">Start Scan</button>
+        </div>
+    </div>
+    
+    <!-- Right Panel (65%) -->
+    <div class="right-panel">
+        <div class="results-header">
+            <h2>Scan Results</h2>
+            <div class="action-buttons">
+                <button id="copyBtn" class="action-btn">Copy Results</button>
+                <button id="clearBtn" class="action-btn">Clear</button>
+            </div>
+        </div>
+        
+        <div class="results-container" id="resultsContainer">
+            <div id="defaultMessage" style="height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.5);">
+                Scan results will appear here. Select options and click "Start Scan".
+            </div>
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <div>Scanning in progress... This may take several minutes</div>
+            </div>
+            <div id="result" style="display: none;"></div>
+        </div>
     </div>
 
     <script>
-        const form = document.getElementById('vulnerabilityForm');
-        const resultDiv = document.getElementById('result');
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const target = document.getElementById('urlInput').value;
-            const scanType = document.getElementById('scanType').value;
-
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = '<p>Checking vulnerability... Please wait.</p>';
-
-            try {
-                const response = await fetch('/scan', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ target, scanType }),
-                });
-
-                const data = await response.json();
-
-                if (data.error) {
-                    resultDiv.innerHTML = `<p>Error: ${data.error}</p>`;
-                } else {
-                    resultDiv.innerHTML = `<pre>${data.result}</pre>`;
+        document.addEventListener('DOMContentLoaded', function() {
+            const scanBtn = document.getElementById('scanBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const targetInput = document.getElementById('target');
+            const loadingElement = document.getElementById('loading');
+            const resultElement = document.getElementById('result');
+            const defaultMessage = document.getElementById('defaultMessage');
+            
+            scanBtn.addEventListener('click', async function() {
+                const target = targetInput.value.trim();
+                const checkboxes = document.querySelectorAll('input[name="scanTypes"]:checked');
+                const scanTypes = Array.from(checkboxes).map(cb => cb.value);
+                
+                if (!target) {
+                    alert('Please enter a target');
+                    return;
                 }
-            } catch (error) {
-                resultDiv.innerHTML = '<p>An error occurred while processing your request.</p>';
-            }
+                
+                if (scanTypes.length === 0) {
+                    alert('Please select at least one scan type');
+                    return;
+                }
+                
+                // Show loading, hide other elements
+                loadingElement.style.display = 'flex';
+                resultElement.style.display = 'none';
+                defaultMessage.style.display = 'none';
+                
+                try {
+                    const response = await fetch('/scan', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            target: target,
+                            scanTypes: scanTypes
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        resultElement.innerHTML = data.error;
+                    } else {
+                        // Format the result with better readability
+                        const formattedResult = data.result
+                            .replace(/\n=== (.+?) ===/g, '\n\n<strong style="color: #00d8ff">=== $1 ===</strong>\n')
+                            .replace(/\nHost:/g, '\n<span style="color: #00d8ff">Host:</span>')
+                            .replace(/\nPort:/g, '\n<span style="color: #00d8ff">Port:</span>')
+                            .replace(/\nProtocol:/g, '\n<span style="color: #00d8ff">Protocol:</span>');
+                        
+                        resultElement.innerHTML = formattedResult;
+                    }
+                    
+                    loadingElement.style.display = 'none';
+                    resultElement.style.display = 'block';
+                    defaultMessage.style.display = 'none';
+                } catch (error) {
+                    resultElement.innerHTML = `Error: ${error.message}`;
+                    loadingElement.style.display = 'none';
+                    resultElement.style.display = 'block';
+                    defaultMessage.style.display = 'none';
+                }
+            });
+            
+            // Copy results functionality
+            copyBtn.addEventListener('click', function() {
+                const resultText = document.getElementById('result').innerText;
+                if (!resultText) return;
+                
+                navigator.clipboard.writeText(resultText)
+                    .then(() => {
+                        const originalText = this.innerText;
+                        this.innerText = 'Copied!';
+                        setTimeout(() => {
+                            this.innerText = originalText;
+                        }, 2000);
+                    });
+            });
+            
+            // Clear results functionality
+            clearBtn.addEventListener('click', function() {
+                resultElement.innerHTML = '';
+                resultElement.style.display = 'none';
+                defaultMessage.style.display = 'flex';
+            });
+            
+            // Allow pressing Enter in the input field to trigger scan
+            targetInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    scanBtn.click();
+                }
+            });
         });
     </script>
 </body>
