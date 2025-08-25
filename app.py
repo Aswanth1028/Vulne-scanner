@@ -1,67 +1,139 @@
-from flask import Flask, request, jsonify, render_template
-import nmap
-import socket
-import requests
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vulnerability Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('vuln2.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
-app = Flask(__name__)
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: rgba(42, 42, 64, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        }
 
-def port_scan(target):
-    output = ""
-    scanner = nmap.PortScanner()
-    scanner.scan(target, '1-1024', '-sV')
-    for host in scanner.all_hosts():
-        output += f"Host: {host} ({scanner[host].hostname()})\n"
-        output += f"State: {scanner[host].state()}\n"
-        for protocol in scanner[host].all_protocols():
-            output += f"Protocol: {protocol}\n"
-            ports = scanner[host][protocol].keys()
-            for port in ports:
-                output += f"Port: {port}, State: {scanner[host][protocol][port]['state']}\n"
-    return output
+        .container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #00d8ff;
+            text-align: center;
+        }
 
-def banner_grab(target, port):
-    try:
-        s = socket.socket()
-        s.connect((target, port))
-        s.send(b'HEAD / HTTP/1.1\r\n\r\n')
-        banner = s.recv(1024)
-        return f"Banner for {target}:{port}: {banner.decode('utf-8')}\n"
-    except Exception as e:
-        return f"Error grabbing banner: {e}\n"
+        label {
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: block;
+        }
 
-def check_headers(url):
-    try:
-        response = requests.get(url)
-        headers = response.headers
-        output = "Security Headers:\n"
-        for header, value in headers.items():
-            output += f"{header}: {value}\n"
-        return output
-    except Exception as e:
-        return f"Error checking headers: {e}\n"
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            background: #1e1e2f;
+            color: #ffffff;
+            border: 1px solid #3a3a55;
+        }
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #00d8ff;
+        }
 
-@app.route('/scan', methods=['POST'])
-def scan():
-    data = request.json
-    target = data.get('target')
-    scan_type = data.get('scanType')
-    if not target or not scan_type:
-        return jsonify({"error": "Missing target or scan type"}), 400
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #00d8ff;
+            border: none;
+            border-radius: 5px;
+            color: #1e1e2f;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-    if scan_type == "Port Scan":
-        result = port_scan(target)
-    elif scan_type == "Banner Grabbing":
-        result = banner_grab(target, 80)
-    elif scan_type == "Header Check":
-        result = check_headers(target)
-    else:
-        return jsonify({"error": "Invalid scan type"}), 400
+        button:hover {
+            background-color: #00b2d6;
+        }
 
-    return jsonify({"result": result})
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #1e1e2f;
+            border: 1px solid #3a3a55;
+            border-radius: 5px;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Vulnerability Checker</h1>
+        <form id="vulnerabilityForm">
+            <label for="urlInput">Enter URL or IP:</label>
+            <input type="text" id="urlInput" name="url" placeholder="https://example.com" required>
 
-if __name__ == '__main__':
-    app.run(debug=True)
+            <label for="scanType">Select Scan Type:</label>
+            <select id="scanType" name="scanType">
+                <option value="Port Scan">Port Scan</option>
+                <option value="Banner Grabbing">Banner Grabbing</option>
+                <option value="Header Check">Header Check</option>
+            </select>
+
+            <button type="submit">Check Vulnerability</button>
+        </form>
+        <div class="result" id="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('vulnerabilityForm');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const target = document.getElementById('urlInput').value;
+            const scanType = document.getElementById('scanType').value;
+
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>Checking vulnerability... Please wait.</p>';
+
+            try {
+                const response = await fetch('/scan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ target, scanType }),
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    resultDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<pre>${data.result}</pre>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<p>An error occurred while processing your request.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
